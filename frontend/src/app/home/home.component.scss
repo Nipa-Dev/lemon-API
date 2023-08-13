@@ -1,0 +1,25 @@
+@import "variables";
+header {
+    text-align: center;
+    display: flex;
+    margin: 0px;
+    padding-inline: 2rem;
+    justify-content: left;
+    align-items: center;
+}
+
+.main-heading {
+    padding: 0px;
+    margin:0px;
+}
+span {
+    color: $accent;
+}
+h1 {
+    margin: 0px;
+    font-size: 5rem;
+}
+
+p {
+    color: $text;
+}
