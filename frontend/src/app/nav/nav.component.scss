@@ -1,15 +1,33 @@
+@import "variables";
 nav {
     text-align: left;
-    margin: 0px;
-    padding:0px;
     display: block;
-}
     padding-top: 1rem;
     padding-left: 5rem;
+}
 ul {
-    display:block;
+    display: block;
+    width: fit-content;
+    border-style:solid;
+    border-color: $secondary;
+    border-radius: 1rem;
+    background-color: $secondary;
 }
 li {
+    color: $accent;
+    border-left: solid;
     display:inline-block;
     padding: 1rem;
+    transition: all 250ms;
+
+}
+ul :hover {
+    border-radius: 1rem;
+    background-color: $accent;
+}
+ul :first-child{
+    border-left: none;
+}
+a{
+    color: $accent;
 }
