@@ -1,0 +1,14 @@
+@import "variables";
+h1 {
+    font-size: 5rem;
+} 
+main {
+    display:flex;
+    height: 85vh;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+span {
+    color: $accent;
+}
