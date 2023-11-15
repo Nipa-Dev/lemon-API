@@ -2,9 +2,7 @@ import random
 
 from fastapi import APIRouter, Request
 
-from lemonapi import facts
-
-from lemonapi import quotes
+from lemonapi import facts, quotes
 
 router = APIRouter()
 

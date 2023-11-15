@@ -21,6 +21,11 @@ The API should be running at `http://localhost:5001` check `http://localhost:500
 ## How to make a request to get API token?
 Most of functionality can be tested alone in the `/docs` endpoint, but you may as well interact with code.
 This example will give you access to authorization token used to authenticate your request to endpoints requiring OAuth2.
+
+With curl when endpoint is running with https:
+```bash
+curl -d "username=admin&password=weakadmin" --ssl-no-revoke -X POST https://127.0.0.1:5001/token
+```
 ```py
 import requests
 

@@ -1,19 +1,60 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Login page!</title>
-  </head>
-  <body>
-    <form method="post">
-        <input type="text" name="username" placeholder="Username" value="foo"></br>
-        <input type="text" name="fullname" placeholder="Full name" value="foobar"></br>
-        <input type="email" name="email" placeholder="Email Address" value="foobar@foo.com"></br>
-        <input type="password" name="password" placeholder="Password"></br>
-        <input type="checkbox"
-        id="foo"
-        name="check"
-        value="true" />
-        <label for="foo">Save URL in your account?</label></br>
-        <input type="submit" value="Login">
-    </form>
-  </body>
+<head>
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Login</h1>
+        <form method="post" action="/token">
+            <label for="username">Username:</label>
+            <input type="text" name="username" required><br><br>
+            <label for="password">Password:</label>
+            <input type="password" name="password" required><br><br>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</body>
 </html>

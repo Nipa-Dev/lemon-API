@@ -8,9 +8,7 @@ class URLBase(BaseModel):
 class URL(URLBase):
     is_active: bool
     clicks: int
-
-    class Config:
-        orm_mode = True
+    url_key: str
 
 
 class URLInfo(URL):

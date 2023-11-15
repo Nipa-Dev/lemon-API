@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Refresh Token</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .main-box {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        h2 {
+            color: #333;
+        }
+        #token-div {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        #api-token {
+            flex-grow: 1;
+            border: none;
+            background-color: transparent;
+        }
+        #token-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #token-button:hover {
+            background-color: #0056b3;
+        }
+        p {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-box">
+        <div class="content-box">
+            <h2>Refresh Token:</h2>
+            <div id="token-div" onclick="copyToClipboard()">
+                <input type="text" id="api-token" value="{{ token }}" readonly>
+                <button id="token-button">Copy</button>
+            </div>
+            <p>This is your refresh token. It's used to receive an auth token.</p>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard() {
+            let tokenInput = document.getElementById("api-token");
+            tokenInput.select();
+            document.execCommand("copy");
+
+            // Get the token value
+            let tokenValue = tokenInput.value;
+
+            // Set the token as a cookie with a 1-hour expiration (adjust as needed)
+            document.cookie = "refreshToken=" + encodeURIComponent(tokenValue) + "; expires=3600; path=/";
+        }
+    </script>
+</body>
+</html>
