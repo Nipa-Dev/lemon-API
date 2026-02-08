@@ -22,7 +22,8 @@ In rootless mode, this is usually required or containers may hang or fail to cle
 export TESTCONTAINERS_RYUK_DISABLED=true
 ```
 
-Example to export them, using fish shell ```fish
+Example to export them, using fish shell 
+```fish
 set -Ux DOCKER_HOST unix://$XDG_RUNTIME_DIR/podman/podman.sock
 set -Ux TESTCONTAINERS_RYUK_DISABLED true
 ```
