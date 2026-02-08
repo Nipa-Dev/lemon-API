@@ -1,0 +1,11 @@
+Database indexes improve query performance by allowing the database engine to
+locate rows without scanning entire tables. Common index types include B-tree,
+hash, GIN, and GiST indexes.
+
+GIN indexes are particularly useful for full-text search and JSONB queries,
+while GiST indexes support geometric data and range queries.
+
+Effective indexing requires understanding query patterns, write workloads,
+and the trade-offs between storage overhead and query speed.
+
+THIS FILE CONTENT IS GENERATED WITH AI, I was too lazy to write stuff myself

@@ -1,29 +1,37 @@
 from typing import Annotated
-from loguru import logger
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status, Cookie
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from loguru import logger
 
-from lemonapi.utils import auth
-from lemonapi.utils import dependencies
-
-from lemonapi.utils.constants import Server
-from lemonapi.utils.crud import CrudServiceDep
-
-
-from lemonapi.utils.auth import (
-    User,
-    get_current_active_user,
-    RefreshToken,
+from lemonapi.utils import auth, dependencies
+from lemonapi.utils.auth import get_current_active_user
+from lemonapi.utils.schemas import (
     AccessToken,
+    RefreshToken,
+    User,
+    NewUser
 )
+from lemonapi.utils.constants import Server
+from lemonapi.utils.services.user_service import UserServiceDep
 
 router = APIRouter()
 
 
 @router.get("/showtoken")
 async def show_token(request: Request, token: Annotated[str | None, Cookie()] = None):
+    """
+    Retrieves the token from the request cookies and renders the "api_token.html" template with the token as a context variable.
+
+    Args:
+        request: The incoming request object.
+        token: The token retrieved from the request cookies. Defaults to None.
+
+    Returns:
+        TemplateResponse: The rendered "api_token.html" template with the token as a context variable if the token is found.
+        dict: A dictionary with a "detail" key set to "No token found" if the token is not found.
+    """
     context = {"request": request}
     if token:
         context["token"] = token
@@ -41,19 +49,20 @@ async def login_for_refresh_token(
     pool: dependencies.PoolDep,
 ):
     """
-    Endpoint to receive a refresh token. This token does not grant user
-    permissions.
+    Endpoint to receive a refresh token. This token does not grant user permissions.
 
     Requires username and password.
 
-    Returns
-    -------
-        refresh token and token type.
+    Args:
+        request: The incoming request object.
+        form_data: The OAuth2 password request form containing username and password.
+        pool: The database connection pool.
 
-    Raises
-    ------
-    HTTPException
-        When incorrect username or password is provided.
+    Returns:
+        dict: A dictionary containing the refresh token and token type, or access token if from docs.
+
+    Raises:
+        HTTPException: When incorrect username or password is provided.
     """
     async with pool.acquire() as con:
         user = await auth.authenticate_user(
@@ -80,7 +89,7 @@ async def login_for_refresh_token(
         key="token",
         value=refresh_token,
         httponly=True,
-        max_age=10,
+        max_age=Server.REFRESH_EXPIRE_IN,
         path="/showtoken",
     )
     headers = request.headers
@@ -97,10 +106,11 @@ async def login_for_refresh_token(
             "access_token": token["access_token"],
             "token_type": token["token_type"],
         }
+    # Return redirect when request comes from /login endpoint
     elif "referer" in headers and "/login" in request.headers["referer"]:
         return redirect
     else:
-        return {"refresh": refresh_token, "token_type": "bearer"}
+        return {"refresh_token": refresh_token, "token_type": "bearer"}
 
 
 @router.post("/authenticate", response_model=AccessToken)
@@ -114,11 +124,13 @@ async def authenticate(
 
     Users should replace their local refresh token with the one returned.
 
-    Returns
-    -------
-    dict
-        containing access token, token type, refresh token, and expiration time.
-        Response model is AccessToken.
+    Args:
+        request: The incoming request object.
+        body: The refresh token data.
+        pool: The database connection pool.
+
+    Returns:
+        dict: A dictionary containing access token, token type, refresh token, and expiration time.
     """
     async with pool.acquire() as con:
         access, refresh = await auth.create_access_token(
@@ -136,10 +148,20 @@ async def authenticate(
 
 @router.post("/users/add/")
 async def add_user(
-    request: Request, crud_service: CrudServiceDep, user: auth.NewUser = Depends()
+    request: Request, user_service: UserServiceDep, user: NewUser = Depends()
 ):
-    """Register a new user, add user to database with username and hashed password."""
-    added_user = await crud_service.add_user(user)
+    """
+    Register a new user, add user to database with username and hashed password.
+
+    Args:
+        request: The incoming request object.
+        user_service: The user service dependency.
+        user: The new user data.
+
+    Returns:
+        The added user data.
+    """
+    added_user = await user_service.add_user(user)
 
     return added_user
 
@@ -149,10 +171,21 @@ async def update_password(
     request: Request,
     user: Annotated[User, Depends(get_current_active_user)],
     new_password: str,
-    crud_service: CrudServiceDep,
+    user_service: UserServiceDep,
 ):
-    """Update user password."""
-    row, message = await crud_service.update_password(user, new_password)
+    """
+    Update user password.
+
+    Args:
+        request: The incoming request object.
+        user: The current authenticated user.
+        new_password: The new password to set.
+        user_service: The user service dependency.
+
+    Returns:
+        dict: A dictionary with detail and timestamp.
+    """
+    row, message = await user_service.update_password(user, new_password)
     return {"detail": row, "dt": message}
 
 
@@ -160,11 +193,29 @@ async def update_password(
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
+    """
+    Get the current authenticated user's information.
+
+    Args:
+        current_user: The current authenticated user.
+
+    Returns:
+        User: The user data.
+    """
     return current_user
 
 
 @router.get("/login", include_in_schema=False)
 async def login(request: Request):
+    """
+    Render the login page template.
+
+    Args:
+        request: The incoming request object.
+
+    Returns:
+        TemplateResponse: The rendered login.html template.
+    """
     context = {"request": request}
     template_name = "login.html"
     return Server.TEMPLATES.TemplateResponse(template_name, context)

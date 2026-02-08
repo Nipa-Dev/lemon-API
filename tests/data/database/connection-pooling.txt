@@ -1,0 +1,10 @@
+Connection pooling reduces the overhead of creating and destroying database
+connections by reusing existing connections across requests.
+
+In high-concurrency applications, pooling is essential to prevent exhausting
+database connection limits and degrading performance.
+
+Popular PostgreSQL connection poolers include PgBouncer, Pgpool-II,
+and application-level pooling libraries.
+
+THIS FILE CONTENT IS GENERATED WITH AI, I was too lazy to write stuff myself

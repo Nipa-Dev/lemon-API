@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
 
 from fastapi import Request
 
@@ -21,8 +22,12 @@ class _Server(BaseSettings):
     REFRESH_EXPIRE_IN: int = ACCESS_EXPIRE_IN * 6
 
     DEBUG: bool
+    IMPORT_NOTE_EXTENSIONS: set[str] = {".md", ".txt"}
+
+    IMPORT_NOTES_PATH: Path
 
     # Database connection
+    DB_HOST: str
     DB_NAME: str
     DB_PORT: str
     DB_PASSWORD: str
@@ -32,7 +37,7 @@ class _Server(BaseSettings):
 
     SCOPES: list[str] = ["users:read"]
     # key length is used for shortened urls.
-    # value of default 5 geneerates shortened urls like:
+    # value of default 5 generates shortened urls like:
     # http://localhost:5000/UEFIS
     KEY_LENGTH: int = 5
     SECRET_KEY_LENGTH: int = 10
@@ -40,22 +45,3 @@ class _Server(BaseSettings):
 
 Server = _Server()
 
-
-class FormsManager:
-    """Handling forms data from request."""
-
-    def __init__(self, request: Request, **kwargs):
-        self.__dict__.update(kwargs)
-        self.request = request
-
-    def get_data(self):
-        """Returns the data of the form as a dictionary."""
-        return self.__dict__
-
-    def find_data(self, key: str):
-        """Returns the value of given key from the forms data."""
-        return self.__dict__[key] if key in self.__dict__ else None
-
-    def get_keys(self):
-        """Returns the keys of the forms data. Keys are basically the kwargs."""
-        return self.__dict__.keys()

@@ -1,78 +1,226 @@
-<!DOCTYPE html>
-<html>
-<head>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
     <title>Refresh Token</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-        }
-        .main-box {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-        }
-        h2 {
-            color: #333;
-        }
-        #token-div {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        #api-token {
-            flex-grow: 1;
-            border: none;
-            background-color: transparent;
-        }
-        #token-button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        #token-button:hover {
-            background-color: #0056b3;
-        }
-        p {
-            color: #666;
-        }
+      /* light theme */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        text-align: center;
+        margin: 0;
+      }
+
+      .main-box {
+        max-width: 400px;
+        margin: 60px auto;
+        padding: 20px;
+        background-color: #ffffff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+      }
+
+      h2 {
+        margin-bottom: 15px;
+        color: #333;
+      }
+
+      p {
+        color: #666;
+        font-size: 14px;
+      }
+
+      /* token box */
+      #token-div {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        cursor: pointer;
+      }
+
+      #api-token {
+        flex-grow: 1;
+        border: none;
+        background-color: transparent;
+        font-size: 14px;
+        outline: none;
+      }
+
+      #token-button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 8px 14px;
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 14px;
+        transition:
+          background-color 0.2s ease,
+          opacity 0.2s ease;
+      }
+
+      #token-button:hover {
+        background-color: #0056b3;
+      }
+
+      #token-button.copied {
+        opacity: 0.8;
+      }
+
+      /* toggle */
+      .toggle-container {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 10px 20px;
+      }
+
+      .toggle-label {
+        margin-right: 10px;
+      }
+
+      .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 34px;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        background-color: #ccc;
+        border-radius: 34px;
+        inset: 0;
+        transition: 0.4s;
+      }
+
+      .toggle-slider::before {
+        content: "";
+        position: absolute;
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        border-radius: 50%;
+        transition: 0.4s;
+      }
+
+      input:checked + .toggle-slider {
+        background-color: #2196f3;
+      }
+
+      input:checked + .toggle-slider::before {
+        transform: translateX(26px);
+      }
+
+      /* dark theme */
+      body.dark-theme {
+        background-color: #1e1e1e;
+        color: #ffffff;
+      }
+
+      body.dark-theme .main-box {
+        background-color: #2b2b2b;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
+      }
+
+      body.dark-theme h2 {
+        color: #ffffff;
+      }
+
+      body.dark-theme p {
+        color: #cccccc;
+      }
+
+      body.dark-theme #token-div {
+        border-color: #555;
+      }
+
+      body.dark-theme #api-token {
+        color: #ffffff;
+      }
+
+      body.dark-theme #token-button {
+        background-color: #2196f3;
+      }
+
+      body.dark-theme #token-button:hover {
+        background-color: #1976d2;
+      }
     </style>
-</head>
-<body>
+  </head>
+
+  <body>
+    <div class="toggle-container">
+      <span class="toggle-label">Dark Mode</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
     <div class="main-box">
-        <div class="content-box">
-            <h2>Refresh Token:</h2>
-            <div id="token-div" onclick="copyToClipboard()">
-                <input type="text" id="api-token" value="{{ token }}" readonly>
-                <button id="token-button">Copy</button>
-            </div>
-            <p>This is your refresh token. It's used to receive an auth token.</p>
-        </div>
+      <h2>Refresh Token</h2>
+
+      <div id="token-div" onclick="copyToClipboard()">
+        <input type="text" id="api-token" value="{{ token }}" readonly />
+        <button id="token-button" type="button">Copy</button>
+      </div>
+
+      <p>This is your refresh token. It is used to request an access token.</p>
     </div>
 
     <script>
-        function copyToClipboard() {
-            let tokenInput = document.getElementById("api-token");
-            tokenInput.select();
-            document.execCommand("copy");
+      /* ---------- Theme Handling ---------- */
+      const body = document.body;
+      const toggle = document.getElementById("themeToggle");
 
-            // Get the token value
-            let tokenValue = tokenInput.value;
+      const savedTheme = localStorage.getItem("themePreference");
+      if (savedTheme === "dark") {
+        body.classList.add("dark-theme");
+        toggle.checked = true;
+      }
 
-            // Set the token as a cookie with a 1-hour expiration (adjust as needed)
-            document.cookie = "refreshToken=" + encodeURIComponent(tokenValue) + "; expires=3600; path=/";
-        }
+      toggle.addEventListener("change", () => {
+        body.classList.toggle("dark-theme");
+        localStorage.setItem(
+          "themePreference",
+          body.classList.contains("dark-theme") ? "dark" : "light",
+        );
+      });
+
+      /* ---------- Copy Token ---------- */
+      function copyToClipboard() {
+        const tokenInput = document.getElementById("api-token");
+        const button = document.getElementById("token-button");
+
+        tokenInput.select();
+        tokenInput.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+
+        const originalText = button.textContent;
+        button.textContent = "Copied ✓";
+        button.classList.add("copied");
+
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.classList.remove("copied");
+        }, 1000);
+      }
     </script>
-</body>
+  </body>
 </html>

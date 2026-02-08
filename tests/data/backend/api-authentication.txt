@@ -1,0 +1,11 @@
+API authentication ensures that only authorized clients can access protected resources.
+Common authentication methods include API keys, OAuth2, JWT tokens, and session cookies.
+
+FastAPI provides first-class support for OAuth2 password flow, bearer tokens,
+and security dependencies. Authentication is often combined with authorization
+logic to determine what actions a user is permitted to perform.
+
+In distributed systems, authentication tokens must be securely stored,
+validated efficiently, and rotated periodically to reduce the risk of compromise.
+
+THIS FILE CONTENT IS GENERATED WITH AI, I was too lazy to write stuff myself

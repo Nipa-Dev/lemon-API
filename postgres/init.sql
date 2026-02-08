@@ -21,6 +21,36 @@ CREATE TABLE IF NOT EXISTS public.urls (
     created_at timestamp NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS notes (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    content TEXT NOT NULL,
+    tags JSONB,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now(),
+    notes_tsv tsvector -- Full-text search column
+);
+
+CREATE INDEX IF NOT EXISTS idx_notes_tsv ON notes USING GIN(notes_tsv);
+
+-- Trigger function to update notes_tsv automatically
+CREATE OR REPLACE FUNCTION public.update_notes_tsv() RETURNS trigger AS $$
+BEGIN
+  NEW.notes_tsv :=
+    to_tsvector('english',
+      coalesce(NEW.title,'') || ' ' || coalesce(NEW.content,'') || ' ' ||
+      coalesce(NEW.slug,'')
+    );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger for automatic tsvector update
+CREATE TRIGGER notes_tsv_trigger
+BEFORE INSERT OR UPDATE ON notes
+FOR EACH ROW EXECUTE FUNCTION public.update_notes_tsv();
+
 -- create admin user that is the default user for API
 -- password is "weakadmin", update it!
 
@@ -35,4 +65,4 @@ INSERT INTO users VALUES (
     false,
     true
 ) ON CONFLICT DO NOTHING; -- only insert if not exists
--- password for the user is "weakadmin", update it!do
+-- password for the user is "weakadmin", update it!

@@ -1,38 +1,55 @@
 <!doctype html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+    <meta charset="utf-8" />
+    <script
+      type="module"
+      src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"
+    ></script>
   </head>
   <body>
     <rapi-doc
-    spec-url = "/openapi.json"
-    theme = "dark"
-    render-style = "read"
-    show-header = 'false'
-    bg-color="#23272A"
-    text-color="#F3F4F6"
-    font-size="large"
-    nav-bg-color=""
-    nav-text-color=""
-    nav-hover-bg-color=""
-    nav-hover-text-color=""
-    nav-accent-color="#7289DA"
-    primary-color="#7289DA"
-    sort-tags="true"
+      spec-url="/openapi.json"
+      theme="dark"
+      render-style="read"
+      show-header="false"
+      bg-color="#23272A"
+      text-color="#F3F4F6"
+      font-size="large"
+      nav-bg-color=""
+      nav-text-color=""
+      nav-hover-bg-color=""
+      nav-hover-text-color=""
+      nav-accent-color="#7289DA"
+      primary-color="#7289DA"
+      sort-tags="true"
     >
-    <div slot="nav-logo" style="display: flex; align-items: center; justify-content: center;">
-        <span style="color:#fff">
-            <b>API</b>
+      <div
+        slot="nav-logo"
+        style="display: flex; align-items: center; justify-content: center"
+      >
+        <span style="color: #fff">
+          <b>API</b>
         </span>
-    </div>
-    <div slot="auth">
-        <div style="padding: 1rem;margin-top: 2rem;margin-bottom: 2rem;border: 0 solid var(--tip-red);border-left-width: 4px;background: var(--dark-bg);border-radius: 1px">
-            <span style="color: #E5E7EB;font-weight: bold;">
-                You can use this tool to test out some of the features in the documentation!
-            </span>
+      </div>
+      <div slot="auth">
+        <div
+          style="
+            padding: 1rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            border: 0 solid var(--tip-red);
+            border-left-width: 4px;
+            background: var(--dark-bg);
+            border-radius: 1px;
+          "
+        >
+          <span style="color: #e5e7eb; font-weight: bold">
+            You can use this tool to test out some of the features in the
+            documentation!
+          </span>
         </div>
-    </div>
+      </div>
     </rapi-doc>
   </body>
 </html>

@@ -1,29 +1,21 @@
+from fastapi import Depends, HTTPException, status
 from loguru import logger
 
-from .auth import User, get_current_user
-
-from fastapi import Depends, HTTPException, status
+from .auth import get_current_user
+from .schemas import User
 
 
 class RequiredScopes:
-    """Check if user is authorized to access endpoint. Check based on scopes.
+    """Checks whether a user is authorized to access an endpoint based on scopes.
 
-    Parameters
-    ----------
-    required_scopes : list[str]
-        list of strings specifying the scope required to access endpoint.
+    Args:
+        required_scopes (list[str]): A list of scopes required to access the endpoint.
 
-    Returns
-    -------
-    bool
-        If user has all the required scopes, True is returned. Otherwise exception is
-        raised.
+    Returns:
+        bool: True if the user has all required scopes.
 
-    Raises
-    ------
-    HTTPException
-        If user does not have the required scopes
-
+    Raises:
+        HTTPException: If the user does not have the required scopes.
     """
 
     def __init__(self, required_scopes: list[str]) -> None:

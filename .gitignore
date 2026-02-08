@@ -1,20 +1,3 @@
-# my own set of stuff to ignore from my own environments
-.git
-lemonapi/endpoints/testing.py
-lemonapi/video_1.mov
-lemonapi/utils/functions.py
-requester.py
-dev
-*.log
-./test.txt
-testing
-test.txt
-shortener.db
-testing.py
-Dockerfile-dev
-docker-compose-dev.yml
-*.pem
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

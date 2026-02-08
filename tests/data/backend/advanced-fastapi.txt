@@ -1,0 +1,14 @@
+Advanced FastAPI usage includes dependency injection, background tasks,
+custom middleware, and advanced response handling. Dependencies allow
+developers to share common logic such as authentication, database sessions,
+and permission checks across endpoints.
+
+Background tasks can be scheduled to run after returning a response.
+This is useful for sending emails, writing audit logs, or triggering workflows.
+Middleware provides hooks into the request and response lifecycle, enabling
+logging, tracing, metrics collection, and request modification.
+
+FastAPI integrates seamlessly with async database drivers, message queues,
+and caching layers, making it a strong choice for production-ready APIs.
+
+THIS FILE CONTENT IS GENERATED WITH AI, I was too lazy to write stuff myself

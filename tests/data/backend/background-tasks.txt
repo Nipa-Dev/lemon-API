@@ -1,0 +1,11 @@
+Background tasks allow applications to perform work after returning a response
+to the client. This avoids blocking the request-response cycle while still
+triggering side effects such as sending emails or updating caches.
+
+FastAPI supports background tasks through its built-in BackgroundTasks class.
+Tasks are executed in the same process after the response is sent.
+
+For heavier workloads or distributed processing, external task queues such as
+Celery, RQ, or cloud-native job systems are often more appropriate.
+
+THIS FILE CONTENT IS GENERATED WITH AI, I was too lazy to write stuff myself

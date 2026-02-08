@@ -1,0 +1,11 @@
+CI/CD pipelines automate the process of building, testing, and deploying software.
+Continuous integration ensures that code changes are validated frequently,
+while continuous delivery and deployment automate release workflows.
+
+Pipeline stages commonly include linting, unit testing, integration testing,
+security scanning, and deployment to staging or production environments.
+
+Effective CI/CD practices reduce deployment risk, improve developer velocity,
+and increase system reliability.
+
+THIS FILE CONTENT IS GENERATED WITH AI, I was too lazy to write stuff myself

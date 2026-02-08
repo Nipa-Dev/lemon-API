@@ -1,157 +1,201 @@
-<!DOCTYPE html>
-<html>
-<head>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
     <title>Login</title>
+
     <style>
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-        }
+      /* light theme */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        text-align: center;
+        margin: 0;
+      }
 
-        /* Dark theme styles (initially hidden) */
-        body.dark-theme {
-            background-color: #333;
-            color: #fff;
-        }
+      .login-container {
+        max-width: 400px;
+        margin: 60px auto;
+        padding: 20px;
+        background-color: #ffffff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+      }
 
-        /* Toggle switch styles */
-        .toggle-container {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding: 10px;
-        }
+      h1 {
+        margin-bottom: 20px;
+        color: #333;
+      }
 
-        .toggle-label {
-            margin-right: 10px;
-        }
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: bold;
+        text-align: left;
+      }
 
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+      }
 
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            background-color: #ccc;
-            border-radius: 34px;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            transition: 0.4s;
-        }
+      button[type="submit"] {
+        width: 100%;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 16px;
+      }
 
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            border-radius: 50%;
-            transition: 0.4s;
-        }
+      button[type="submit"]:hover {
+        background-color: #0056b3;
+      }
 
-        input:checked + .toggle-slider {
-            background-color: #2196F3;
-        }
+      /* toggle */
+      .toggle-container {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 10px 20px;
+      }
 
-        input:focus + .toggle-slider {
-            box-shadow: 0 0 1px #2196F3;
-        }
+      .toggle-label {
+        margin-right: 10px;
+      }
 
-        input:checked + .toggle-slider:before {
-            transform: translateX(26px);
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-        }
-        .login-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-        }
-        h1 {
-            color: #333;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        .dark-theme label {
-            color: white;
-        }
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button[type="submit"] {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        button[type="submit"]:hover {
-            background-color: #0056b3;
-        }
+      .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 34px;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        background-color: #ccc;
+        border-radius: 34px;
+        inset: 0;
+        transition: 0.4s;
+      }
+
+      .toggle-slider::before {
+        content: "";
+        position: absolute;
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        border-radius: 50%;
+        transition: 0.4s;
+      }
+
+      input:checked + .toggle-slider {
+        background-color: #2196f3;
+      }
+
+      input:checked + .toggle-slider::before {
+        transform: translateX(26px);
+      }
+
+      /* dark theme */
+      body.dark-theme {
+        background-color: #1e1e1e;
+        color: #ffffff;
+      }
+
+      body.dark-theme .login-container {
+        background-color: #2b2b2b;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
+      }
+
+      body.dark-theme h1,
+      body.dark-theme label {
+        color: #ffffff;
+      }
+
+      body.dark-theme input[type="text"],
+      body.dark-theme input[type="password"] {
+        background-color: #3a3a3a;
+        color: #ffffff;
+        border: 1px solid #555;
+      }
+
+      body.dark-theme input::placeholder {
+        color: #aaaaaa;
+      }
+
+      body.dark-theme button[type="submit"] {
+        background-color: #2196f3;
+      }
+
+      body.dark-theme button[type="submit"]:hover {
+        background-color: #1976d2;
+      }
     </style>
-</head>
-<body>
+  </head>
+
+  <body>
     <div class="toggle-container">
-        <span class="toggle-label">Dark Mode:</span>
-        <label class="toggle-switch">
-            <input type="checkbox" id="themeToggle">
-            <span class="toggle-slider"></span>
-        </label>
+      <span class="toggle-label">Dark Mode</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle" />
+        <span class="toggle-slider"></span>
+      </label>
     </div>
+
     <div class="login-container">
-        <h1>Login</h1>
-        <form method="post" action="/token">
-            <label for="username" class="dark-theme">Username:</label>
-            <input type="text" name="username" required placeholder="username"><br><br>
-            <label for="password" class="dark-theme">Password:</label>
-            <input type="password" name="password" required placeholder="password"><br><br>
-            <button type="submit">Login</button>
-        </form>
+      <h1>Login</h1>
+      <form method="post" action="/token">
+        <label for="username">Username</label>
+        <input type="text" name="username" placeholder="username" required />
+
+        <label for="password">Password</label>
+        <input
+          type="password"
+          name="password"
+          placeholder="password"
+          required
+        />
+
+        <button type="submit">Login</button>
+      </form>
     </div>
+
     <script>
-    // Function to toggle between light and dark themes and save the preference
-    function toggleDarkMode() {
-        const body = document.body;
-        body.classList.toggle("dark-theme");
+      const body = document.body;
+      const toggle = document.getElementById("themeToggle");
 
-        // Save the theme preference to local storage
-        const themePreference = body.classList.contains("dark-theme") ? "dark" : "light";
-        localStorage.setItem("themePreference", themePreference);
-    }
-
-    // Retrieve and apply the saved theme preference (if available)
-    const savedThemePreference = localStorage.getItem("themePreference");
-    if (savedThemePreference === "dark") {
-        const body = document.body;
+      // Load saved theme
+      const savedTheme = localStorage.getItem("themePreference");
+      if (savedTheme === "dark") {
         body.classList.add("dark-theme");
-    }
+        toggle.checked = true;
+      }
 
-    // Add event listener to the theme toggle switch
-    const themeToggle = document.getElementById("themeToggle");
-    themeToggle.addEventListener("change", toggleDarkMode);
+      // Toggle theme
+      toggle.addEventListener("change", () => {
+        body.classList.toggle("dark-theme");
+        localStorage.setItem(
+          "themePreference",
+          body.classList.contains("dark-theme") ? "dark" : "light",
+        );
+      });
     </script>
-</body>
+  </body>
 </html>

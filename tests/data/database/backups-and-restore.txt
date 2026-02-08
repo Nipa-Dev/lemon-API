@@ -1,0 +1,11 @@
+Regular backups are essential for disaster recovery and data protection.
+PostgreSQL supports logical backups using pg_dump and physical backups using
+base backups and WAL archiving.
+
+Backup strategies should balance recovery point objectives (RPO),
+recovery time objectives (RTO), and storage costs.
+
+Testing restore procedures regularly ensures that backups are valid
+and that recovery processes work as expected during incidents.
+
+THIS FILE CONTENT IS GENERATED WITH AI, I was too lazy to write stuff myself

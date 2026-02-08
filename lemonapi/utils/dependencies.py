@@ -11,8 +11,3 @@ async def get_pool():
 
 
 PoolDep = Annotated[asyncpg.Pool, Depends(get_pool)]
-
-
-async def protected():
-    """Protected route. Require checks to pass."""
-    raise NotImplementedError

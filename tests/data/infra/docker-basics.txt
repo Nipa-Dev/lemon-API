@@ -1,0 +1,12 @@
+Docker is a containerization platform that packages applications and their
+dependencies into lightweight, portable containers. Containers run consistently
+across development, testing, and production environments.
+
+Docker images are built using Dockerfiles that define the runtime environment,
+dependencies, and startup commands. Containers are launched from these images
+and isolated from the host system.
+
+Containerization simplifies deployment pipelines, scaling strategies,
+and environment reproducibility.
+
+THIS FILE CONTENT IS GENERATED WITH AI, I was too lazy to write stuff myself

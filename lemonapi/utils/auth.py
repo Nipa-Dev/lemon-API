@@ -6,7 +6,7 @@ from loguru import logger
 from passlib.context import CryptContext
 from pydantic import BaseModel, ValidationError
 from asyncpg import Record
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 
 from fastapi import Depends, HTTPException, Request, status
@@ -14,6 +14,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 from lemonapi.utils.constants import Server
 from lemonapi.utils import dependencies
+from lemonapi.utils.schemas import User, UserInDB, TokenData
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # oauth2 security scheme
@@ -23,63 +24,15 @@ oauth2_scheme = OAuth2PasswordBearer(
 )
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: str
-    scopes: list[str] = []
-
-
-class User(BaseModel):
-    username: str
-    user_id: str
-    email: str | None = None
-    full_name: str | None = None
-    is_disabled: bool | None = None
-    scopes: list[str] = []
-
-
-class UserInDB(User):
-    hashed_password: str
-
-
-class NewUser(BaseModel):
-    username: str
-    password: str
-    email: str
-    full_name: str
-
-
-class RefreshToken(BaseModel):
-    refresh_token: str
-
-
-class AccessToken(RefreshToken):
-    """Used as a response for requesting a new access token."""
-
-    access_token: str
-    token_type: str
-    expires_in: int
-    refresh_token: str
-
-
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
-    Function to verify the password.
+    Verify the password.
 
-    Parameters
-    ----------
-    plain_password : str
-        Password in plain text.
-    hashed_password : str
-        The hashed password
+    Args:
+        plain_password: Password in plain text.
+        hashed_password: The hashed password.
 
-    Returns
-    -------
-    bool
+    Returns:
         True if the password matches, False otherwise.
     """
     return pwd_context.verify(plain_password, hashed_password)
@@ -87,16 +40,12 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def get_password_hash(password: str) -> str:
     """
-    Function to hash the password from given string.
+    Hash the password from given string.
 
-    Parameters
-    ----------
-    password : str
-        The password to be hashed.
+    Args:
+        password: The password to be hashed.
 
-    Returns
-    -------
-    str
+    Returns:
         The hashed password.
     """
     return pwd_context.hash(password)
@@ -104,17 +53,14 @@ def get_password_hash(password: str) -> str:
 
 async def get_user(username: str, con: asyncpg.Connection) -> UserInDB | None:
     """
-    Parameters
-    ----------
-    username : str
-        Username of the user.
-    db : Annotated[Connection, Depends]
-        Database connection from session.
+    Get user by username.
 
-    Returns
-    -------
-    UserInDB | None
-        Return None if user is not found.
+    Args:
+        username: Username of the user.
+        con: Database connection.
+
+    Returns:
+        UserInDB object if found, None otherwise.
     """
 
     row = await con.fetchrow("SELECT * FROM users WHERE username = $1", username)
@@ -133,19 +79,14 @@ async def authenticate_user(
     """
     Authenticate the user with username and password.
 
-    Parameters
-    ----------
-    username : str
-        Username of the user.
-    password : str
-        Password of the user.
-    db : Annotated[Connection, Depends
-        Database connection from session.
+    Args:
+        username: Username of the user.
+        password: Password of the user.
+        request: The incoming request object.
+        pool: Database connection pool.
 
-    Returns
-    -------
-    _type_ missing
-        _description_ not sure, missing value
+    Returns:
+        User object if authentication succeeds, False otherwise.
     """
     user = await get_user(username, pool)
     if not user:
@@ -167,23 +108,19 @@ async def reset_refresh_token(
     """
     Reset the refresh token for the user or receive it.
 
-    Parameters
-    ----------
-    db : Annotated[Connection, Depends]
-        Database connection from session.
-    user_id : str
-        The id of the user.
+    Args:
+        con: Database connection.
+        user_id: The id of the user.
 
-    Returns
-    -------
-    tuple[str, Record]
+    Returns:
         Tuple containing the refresh token and the row from the database.
     """
     # Generate 22 char long string
     token_salt = secrets.token_urlsafe(16)
 
-    expiration = datetime.utcnow() + timedelta(seconds=Server.REFRESH_EXPIRE_IN)
-
+    expiration = datetime.now(timezone.utc) + timedelta(
+        seconds=Server.REFRESH_EXPIRE_IN
+    )
     row = await con.fetchrow(
         "UPDATE users SET key_salt = $1 WHERE user_id = $2 RETURNING *",
         token_salt,
@@ -210,22 +147,16 @@ async def create_access_token(
     Create access token to be used for authentication.
     Refresh existing refresh token if it is expired.
 
-    Parameters
-    ----------
-    db : Annotated[Connection, Depends]
-        database connection from session.
-    refresh_token : str
-        refresh token used to create access token.
+    Args:
+        con: Database connection.
+        refresh_token: Refresh token used to create access token.
+        request: The incoming request object.
 
-    Returns
-    -------
-    tuple[str, str]
+    Returns:
         Tuple containing the access token and refresh token.
 
-    Raises
-    ------
-    HTTPException
-        When the refresh token is invalid.
+    Raises:
+        HTTPException: When the refresh token is invalid.
     """
     try:
         token_data = jwt.decode(refresh_token, Server.SECRET_KEY)
@@ -237,7 +168,7 @@ async def create_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    expire = datetime.utcnow() + timedelta(seconds=Server.ACCESS_EXPIRE_IN)
+    expire = datetime.now(timezone.utc) + timedelta(seconds=Server.ACCESS_EXPIRE_IN)
 
     row = await con.fetchrow(
         "SELECT user_id, key_salt, scopes FROM users WHERE user_id = $1",
@@ -245,7 +176,6 @@ async def create_access_token(
     )
     # validate salt
     if row["key_salt"] != token_data["salt"]:
-        logger.warning("Invalid salt detected")
         logger.warning(f"Incorrect/Invalid salt from IP: {request.client.host}")
 
         raise HTTPException(
@@ -254,7 +184,7 @@ async def create_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    if int(token_data["expiration"]) < datetime.utcnow().timestamp():
+    if int(token_data["expiration"]) < datetime.now(timezone.utc).timestamp():
         refresh_token, row = await reset_refresh_token(con, row["user_id"])
 
     token = jwt.encode(
@@ -279,22 +209,16 @@ async def get_current_user(
     """
     Get the current user.
 
-    Parameters
-    ----------
-    token : Annotated[str, Depends]
-        Authorization token.
-    db : Annotated[Connection, Depends]
-        Database connection from session.
+    Args:
+        token: Authorization token.
+        pool: Database connection pool.
+        request: The incoming request object.
 
-    Returns
-    -------
-    UserInDB
-        user object with necessary data.
+    Returns:
+        UserInDB object with necessary data.
 
-    Raises
-    ------
-    credentials_exception
-        When any of data is not valid.
+    Raises:
+        HTTPException: When credentials are invalid.
     """
     authenticate_value = "Bearer"
     credentials_exception = HTTPException(
@@ -318,8 +242,8 @@ async def get_current_user(
             host = request.client.host
             logger.warning(
                 f"""Incorrect/Invalid token from IP: {
-                    host if host is not None
-                    else 'Unavailable'}"""
+                    host if host is not None else "Unavailable"
+                }"""
             )
             logger.trace("JWT Error, invalid token")
             raise credentials_exception
@@ -336,20 +260,14 @@ async def get_current_active_user(
     """
     Get the current active user. This user is authenticated.
 
-    Parameters
-    ----------
-    current_user : Annotated[User, Depends]
-        Current user that is received from get_current_user.
+    Args:
+        current_user: Current user that is received from get_current_user.
 
-    Returns
-    -------
-    User
-        user object with necessary data.
+    Returns:
+        User object with necessary data.
 
-    Raises
-    ------
-    HTTPException
-        When the user is disabled.
+    Raises:
+        HTTPException: When the user is disabled.
     """
     if current_user.is_disabled:
         logger.info(f"Inactive user requested: {current_user} ")

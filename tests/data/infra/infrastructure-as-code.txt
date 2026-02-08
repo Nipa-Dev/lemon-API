@@ -1,0 +1,10 @@
+Infrastructure as code (IaC) treats infrastructure configuration as version-controlled
+source code. This enables reproducible environments, peer review of changes,
+and automated provisioning.
+
+Popular IaC tools include Terraform, Pulumi, AWS CloudFormation, and Ansible.
+These tools define infrastructure resources declaratively or programmatically.
+
+IaC improves consistency across environments and reduces manual configuration errors.
+
+THIS FILE CONTENT IS GENERATED WITH AI, I was too lazy to write stuff myself
