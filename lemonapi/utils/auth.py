@@ -4,7 +4,7 @@ import asyncpg
 from typing import Annotated
 from loguru import logger
 from passlib.context import CryptContext
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 from asyncpg import Record
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt

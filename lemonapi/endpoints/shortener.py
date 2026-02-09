@@ -51,7 +51,7 @@ async def forward_to_target_url(
 
 
 @router.delete("/admin/{secret_key}", response_model=schemas.URLDeleteResponse)
-async def delete_url(request: Request, secret_key: str, url_service: UrlServiceDep):
+async def delete_url(secret_key: str, url_service: UrlServiceDep):
     """
     Deletes a URL by its secret key.
 

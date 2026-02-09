@@ -7,13 +7,8 @@ from loguru import logger
 
 from lemonapi.utils import auth, dependencies
 from lemonapi.utils.auth import get_current_active_user
-from lemonapi.utils.schemas import (
-    AccessToken,
-    RefreshToken,
-    User,
-    NewUser
-)
 from lemonapi.utils.constants import Server
+from lemonapi.utils.schemas import AccessToken, NewUser, RefreshToken, User
 from lemonapi.utils.services.user_service import UserServiceDep
 
 router = APIRouter()
