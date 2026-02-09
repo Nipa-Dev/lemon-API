@@ -1,9 +1,11 @@
-from pydantic import BaseModel
-from typing import Optional, List
+from datetime import datetime
+from typing import List, Optional
+
+from pydantic import BaseModel, HttpUrl
 
 
 class URLBase(BaseModel):
-    target_url: str
+    target_url: HttpUrl
 
 
 class URL(URLBase):
@@ -15,6 +17,18 @@ class URL(URLBase):
 class URLInfo(URL):
     url: str
     admin_url: str
+
+
+class URLInspectResponse(BaseModel):
+    original_url: HttpUrl
+    short_key: str
+    redirects_to: HttpUrl
+    created_at: datetime
+
+
+class URLDeleteResponse(URLBase):
+    url_key: str
+    deleted: bool
 
 
 class NoteCreate(BaseModel):

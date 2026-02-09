@@ -1,11 +1,11 @@
 import secrets
 import string
-
 from typing import Annotated
-from loguru import logger
-from fastapi import Depends
 
-from .. import schemas, dependencies
+from fastapi import Depends
+from loguru import logger
+
+from .. import dependencies, schemas
 from ..constants import Server
 
 
@@ -104,7 +104,7 @@ class UrlService:
                     target_url,
                     url_key,
                     secret_key) VALUES ($1, $2, $3)""",
-                url.target_url,
+                str(url.target_url),
                 key,
                 secret_key,
             )

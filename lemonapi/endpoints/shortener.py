@@ -1,16 +1,14 @@
-import validators
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-
-from typing import Annotated
 from loguru import logger
 
 from lemonapi.utils import schemas
 from lemonapi.utils.constants import Server
-from lemonapi.utils.services.url_service import UrlServiceDep
 from lemonapi.utils.errors import raise_not_found
+from lemonapi.utils.services.url_service import UrlServiceDep
 
 router = APIRouter()
 
@@ -52,7 +50,7 @@ async def forward_to_target_url(
         raise_not_found(request)
 
 
-@router.delete("/admin/{secret_key}")
+@router.delete("/admin/{secret_key}", response_model=schemas.URLDeleteResponse)
 async def delete_url(request: Request, secret_key: str, url_service: UrlServiceDep):
     """
     Deletes a URL by its secret key.
@@ -68,15 +66,13 @@ async def delete_url(request: Request, secret_key: str, url_service: UrlServiceD
     Raises:
         HTTPException: If the URL with the given secret key is not found.
     """
-    if row := await url_service.deactivate_db_url_by_secret_key(secret_key=secret_key):
-        message = f"""
-        Deleted URL for '{row["url_key"]} -> {row["target_url"]}'
-        """
-        # if message above fails, it is due to row being None as it's inactive and not
-        # selected by database query resulting to server raising Internal Server Error
-        return {"detail": message}
-    else:
-        raise_not_found(request)
+    row = await url_service.deactivate_db_url_by_secret_key(secret_key=secret_key)
+    if not row:
+        raise HTTPException(status_code=404, detail="URL not found")
+
+    return schemas.URLDeleteResponse(
+        target_url=row["target_url"], url_key=row["url_key"], deleted=True
+    )
 
 
 @router.post("/url/")
@@ -94,14 +90,10 @@ async def create_url(url: schemas.URLBase, url_service: UrlServiceDep):
     Raises:
         HTTPException: If the provided URL is invalid.
     """
-    if not validators.url(url.target_url):
-        raise HTTPException(status_code=400, detail="Your provided URL is not invalid")
-    db_url = await url_service.create_db_url(url=url)
-
-    return db_url
+    return await url_service.create_db_url(url)
 
 
-@router.get("/url/inspect")
+@router.get("/url/inspect", response_model=schemas.URLInspectResponse)
 async def inspect_url(
     url_service: UrlServiceDep, url: Annotated[schemas.URLBase, Depends()]
 ):
@@ -118,21 +110,20 @@ async def inspect_url(
     Raises:
         HTTPException: If the provided URL is invalid or the URL key length does not match the defined length.
     """
-    if not validators.url(url.target_url):
-        raise HTTPException(status_code=400, detail="Your provided URL is not invalid")
+    url_str = str(url.target_url)
+    url_key = url_str.split("/")[-1]
 
-    url_key = url.target_url.split("/")[-1]
-    # url key length does not match the defined length, raise HTTPException
     if len(url_key) != Server.KEY_LENGTH:
-        raise HTTPException(status_code=400, detail="Your provided URL is not invalid")
+        raise HTTPException(status_code=400, detail="Invalid URL key length")
 
     url_info = await url_service.get_db_url_by_key(url_key=url_key)
 
-    target = url_info["target_url"]  # target where 'url.target_url' redirects to
-    created_at = url_info["created_at"]
+    if not url_info:
+        raise HTTPException(status_code=404, detail="URL not found")
 
-    message = (
-        f"URL '{url.target_url}' redirects to '{target}'. Created at: {created_at}"
+    return schemas.URLInspectResponse(
+        original_url=url.target_url,
+        short_key=url_key,
+        redirects_to=url_info["target_url"],
+        created_at=url_info["created_at"],
     )
-
-    return {"detail": message}

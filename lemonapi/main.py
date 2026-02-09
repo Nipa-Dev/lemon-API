@@ -93,7 +93,7 @@ async def my_exception_handler(request: Request, exception: StarletteHTTPExcepti
     if exception.status_code == 404:
         name = "error.html"
         return Server.TEMPLATES.TemplateResponse(
-            name=name, context={"request": request}, status_code=404
+            request=request, name=name, status_code=404
         )
 
     else:

@@ -18,25 +18,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from lemonapi.main import app
 from lemonapi.utils.dependencies import get_pool
 
-# Test database URL
-TEST_DATABASE_URL = "postgres://test:test_password@localhost:5432/lemonapi_test"
-
-# Podman/PostgreSQL config
-PG_CONTAINER = "database"
-PG_USER = "test"
-PG_DB = "lemonapi_test"
-
 INIT_SQL = Path(__file__).resolve().parent.parent / "postgres" / "init.sql"
-
-
-'''
-@pytest.fixture()
-async def test_pool():
-    """Create a connection pool to the test database."""
-    pool = await asyncpg.create_pool(TEST_DATABASE_URL)
-    yield pool
-    await pool.close()
-'''
 
 
 @pytest.fixture
