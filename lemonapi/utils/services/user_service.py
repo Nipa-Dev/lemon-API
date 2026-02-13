@@ -21,28 +21,6 @@ class UserService:
         """
         self.pool = pool
 
-    async def get_list_of_usernames(self) -> list[str]:
-        """
-        Get a list of all usernames.
-
-        Returns:
-            List of usernames.
-        """
-        async with self.pool.acquire() as con:
-            rows = await con.fetch("SELECT username FROM users")
-        return [row["username"] for row in rows]
-
-    async def get_list_of_emails(self) -> list[str]:
-        """
-        Get a list of all emails.
-
-        Returns:
-            List of emails.
-        """
-        async with self.pool.acquire() as con:
-            rows = await con.fetch("SELECT email FROM users")
-        return [row["email"] for row in rows]
-
     async def add_user(self, user: schemas.NewUser):
         """
         Add a new user to the database.
