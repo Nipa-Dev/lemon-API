@@ -16,30 +16,14 @@ from lemonapi.utils.database import Connection
 
 description = """Random API"""
 
-favicon_path = pathlib.Path("./static/images/favicon.ico")
+favicon_path = pathlib.Path("lemonapi/static/images/favicon.ico")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    try:
-        hostname = socket.gethostname()
-        local_ip = socket.gethostbyname(hostname)
-
-        logger.info(f"Local network: http://{local_ip}:8000")
-    except Exception:
-        logger.error("Failure to get local network IP address.")
-        logger.trace(
-            "Startup failed to receive network IP address, proceeding anyways."
-        )
-
-    logger.info(f"Server started at: {datetime.datetime.now(datetime.timezone.utc)}")
-
-    # possible error that might happen: socket.gaierror, if it keeps persisting,
-    # try adding try-except block to catch it and re-do the `await Connection.DB_POOL`
-    # within the block
-
     # Create database connection pool
     await Connection.DB_POOL
+    logger.info(f"Server started at: {datetime.datetime.now(datetime.timezone.utc)}")
 
     yield
     # closing down, anything after yield will be ran as shutdown event.

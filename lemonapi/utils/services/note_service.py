@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
-from typing import List, Optional, Annotated
+from typing import Annotated, List, Optional
+
 from fastapi import Depends
 from loguru import logger
 
@@ -136,9 +137,9 @@ class NoteService:
         async with self.pool.acquire() as conn:
             # Exact match using plainto_tsquery
             exact_query = """
-                SELECT *, ts_rank(tsv, plainto_tsquery('english', $1)) AS rank
+                SELECT *, ts_rank(notes_tsv, plainto_tsquery('english', $1)) AS rank
                 FROM notes
-                WHERE tsv @@ plainto_tsquery('english', $1)
+                WHERE notes_tsv @@ plainto_tsquery('english', $1)
                 ORDER BY rank DESC
                 LIMIT 20
             """
@@ -148,9 +149,9 @@ class NoteService:
             inexact_results = None
             if len(q) >= 3:
                 inexact_query = """
-                    SELECT *, ts_rank(tsv, to_tsquery('english', $1 || ':*')) AS rank
+                    SELECT *, ts_rank(notes_tsv, to_tsquery('english', $1 || ':*')) AS rank
                     FROM notes
-                    WHERE tsv @@ to_tsquery('english', $1 || ':*')
+                    WHERE notes_tsv @@ to_tsquery('english', $1 || ':*')
                     ORDER BY rank DESC
                     LIMIT 20
                 """

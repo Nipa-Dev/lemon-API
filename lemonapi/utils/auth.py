@@ -1,20 +1,19 @@
 import secrets
-import asyncpg
-
+from datetime import datetime, timedelta, timezone
 from typing import Annotated
+
+import asyncpg
+from asyncpg import Record
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
 from loguru import logger
 from passlib.context import CryptContext
 from pydantic import ValidationError
-from asyncpg import Record
-from datetime import datetime, timedelta, timezone
-from jose import JWTError, jwt
 
-from fastapi import Depends, HTTPException, Request, status
-from fastapi.security import OAuth2PasswordBearer
-
-from lemonapi.utils.constants import Server
 from lemonapi.utils import dependencies
-from lemonapi.utils.schemas import User, UserInDB, TokenData
+from lemonapi.utils.constants import Server
+from lemonapi.utils.schemas import TokenData, User, UserInDB
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # oauth2 security scheme
@@ -138,6 +137,29 @@ async def reset_refresh_token(
         algorithm=Server.ALGORITHM,
     )
     return token, row
+
+
+async def invalidate_refresh_token(con: asyncpg.Connection, user_id: str) -> Record:
+    """
+    Invalidate all refresh tokens for the user by resetting the key_salt.
+    Does not create a new token.
+
+    Args:
+        con: Database connection.
+        user_id: The id of the user.
+
+    Returns:
+        The updated user row from the database.
+    """
+    # Generate new salt to invalidate existing tokens
+    token_salt = secrets.token_urlsafe(16)
+
+    row = await con.fetchrow(
+        "UPDATE users SET key_salt = $1 WHERE user_id = $2 RETURNING *",
+        token_salt,
+        user_id,
+    )
+    return row
 
 
 async def create_access_token(

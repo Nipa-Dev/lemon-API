@@ -200,6 +200,31 @@ async def read_users_me(
     return current_user
 
 
+@router.post("/logout")
+async def logout(
+    request: Request,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    pool: dependencies.PoolDep,
+):
+    """
+    Logout the current user by invalidating their refresh token.
+    This will invalidate all existing refresh tokens for the user.
+
+    Args:
+        request: The incoming request object.
+        current_user: The current authenticated user.
+        pool: The database connection pool.
+
+    Returns:
+        dict: A dictionary with a logout confirmation message.
+    """
+    async with pool.acquire() as con:
+        await auth.invalidate_refresh_token(con, current_user.user_id)
+
+    response = {"detail": "Successfully logged out"}
+    return response
+
+
 @router.get("/login", include_in_schema=False)
 async def login(request: Request):
     """

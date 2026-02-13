@@ -1,9 +1,10 @@
 from typing import Annotated
+
+from fastapi import Depends, HTTPException, status
 from loguru import logger
 from ulid import ULID
-from fastapi import status, HTTPException, Depends
 
-from .. import schemas, auth, dependencies
+from .. import auth, dependencies, schemas
 
 
 class UserService:
@@ -55,20 +56,24 @@ class UserService:
         Raises:
             HTTPException: If username or email already exists.
         """
-        if user.username in await self.get_list_of_usernames():
-            logger.info(f"User with username '{user.username}' already exists.")
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Username already exists.",
-            )  # raise exception if username already exists
+        async with self.pool.acquire() as con:
+            if await con.fetchval(
+                "SELECT EXISTS(SELECT 1 FROM users WHERE username=$1)", user.username
+            ):
+                logger.info(f"User with username '{user.username}' already exists.")
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Username already exists.",
+                )
 
-        elif user.email in await self.get_list_of_emails():
-            logger.info(f"Email '{user.email}' already exists.")
-
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Email already exists.",
-            )
+            if await con.fetchval(
+                "SELECT EXISTS(SELECT 1 FROM users WHERE email=$1)", user.email
+            ):
+                logger.info(f"Email '{user.email}' already exists.")
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Email already exists.",
+                )
 
         # create user ID
         ulid = ULID()
